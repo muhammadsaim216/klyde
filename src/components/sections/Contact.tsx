@@ -3,6 +3,7 @@ import { Reveal } from "../ui/Reveal";
 import { SectionHeading } from "../ui/SectionHeading";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { ParticleBackground } from "@/components/ui/ParticleBackground";
 
 export function Contact() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -24,8 +25,13 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="relative py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-5">
+    <section id="contact" className="relative py-24 md:py-32 overflow-hidden">
+      {/* Interactive particle canvas backdrop */}
+      <div aria-hidden className="absolute inset-0 -z-10 opacity-40">
+        <ParticleBackground />
+      </div>
+
+      <div className="mx-auto max-w-7xl px-5 relative z-10">
         <SectionHeading
           eyebrow="Let's talk"
           title="Got something you want to build?"
@@ -60,7 +66,7 @@ export function Contact() {
           <Reveal className="lg:col-span-2" delay={0.1}>
             <div className="space-y-4">
               <InfoCard icon={Mail} label="Email" value="hello@klyde.studio" />
-              <InfoCard icon={MapPin} label="Office" value="San Francisco · Remote-first" />
+              <InfoCard icon={MapPin} label="Office" value="Islamabad H12" />
               <a href="#" className="block">
                 <div className="group flex items-center gap-4 rounded-2xl glass gradient-border p-5 transition hover:bg-white/5">
                   <div className="inline-flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-neon-cyan/30 to-neon-violet/30">

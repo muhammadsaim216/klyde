@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { GradientButton } from "../ui/GradientButton";
+import { ParticleBackground } from "@/components/ui/ParticleBackground";
 
 const chips = [
   { label: "React", x: "8%", y: "20%", d: 0 },
@@ -17,6 +18,11 @@ export function Hero() {
     <section className="relative isolate overflow-hidden pt-32 pb-24 md:pt-44 md:pb-32">
       {/* animated background */}
       <div aria-hidden className="absolute inset-0 -z-10">
+        {/* The interactive node particle system */}
+        <div className="absolute inset-0 z-0 opacity-60">
+          <ParticleBackground />
+        </div>
+        
         <div className="absolute inset-0 grid-bg radial-fade" />
         <div className="absolute left-1/2 top-1/3 -z-10 size-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-60 blur-[120px]"
              style={{ background: "radial-gradient(circle, oklch(0.65 0.22 265 / 0.6), transparent 60%)" }} />

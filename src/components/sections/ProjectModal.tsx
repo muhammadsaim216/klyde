@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ExternalLink, Github, X } from "lucide-react";
 import type { Project } from "@/data";
 import { useEffect } from "react";
+import { ParticleBackground } from "@/components/ui/ParticleBackground";
 
 export function ProjectModal({ project, onClose }: { project: Project | null; onClose: () => void }) {
   useEffect(() => {
@@ -24,7 +25,13 @@ export function ProjectModal({ project, onClose }: { project: Project | null; on
           className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           onClick={onClose}
         >
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-xl" />
+          {/* Backdrop with premium blur and particle effect */}
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-xl">
+            <div className="absolute inset-0 opacity-40 pointer-events-none">
+              <ParticleBackground />
+            </div>
+          </div>
+
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}

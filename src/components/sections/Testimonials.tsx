@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useTestimonials } from "@/data";
 import { SectionHeading } from "../ui/SectionHeading";
+import { ParticleBackground } from "@/components/ui/ParticleBackground";
 
 export function Testimonials() {
   const { data: testimonials = [] } = useTestimonials();
@@ -18,8 +19,13 @@ export function Testimonials() {
   if (!t) return null;
 
   return (
-    <section id="testimonials" className="relative py-24 md:py-32">
-      <div className="mx-auto max-w-5xl px-5">
+    <section id="testimonials" className="relative py-24 md:py-32 overflow-hidden">
+      {/* Interactive particle canvas backdrop */}
+      <div aria-hidden className="absolute inset-0 -z-10 opacity-30 pointer-events-none">
+        <ParticleBackground />
+      </div>
+
+      <div className="mx-auto max-w-5xl px-5 relative z-10">
         <SectionHeading
           eyebrow="Testimonials"
           title="In their words, not ours."
@@ -27,7 +33,8 @@ export function Testimonials() {
         />
 
         <div className="relative mt-16">
-          <div className="relative h-[300px] md:h-[260px]">
+          {/* Replaced hardcoded constraints with responsive min-height bounds to guarantee text is never truncated */}
+          <div className="relative min-h-[380px] sm:min-h-[300px] md:min-h-[260px] w-full">
             <AnimatePresence mode="wait">
               <motion.div
                 key={i}
@@ -35,17 +42,20 @@ export function Testimonials() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -30 }}
                 transition={{ duration: 0.5 }}
-                className="absolute inset-0"
+                className="absolute inset-0 w-full h-full"
               >
-                <div className="relative h-full overflow-hidden rounded-3xl glass-strong gradient-border p-8 md:p-12">
-                  <div className="flex items-center gap-1 text-neon-cyan">
-                    {Array.from({ length: t.rating }).map((_, k) => (
-                      <Star key={k} className="size-4 fill-current" />
-                    ))}
+                <div className="relative h-full overflow-hidden rounded-3xl glass-strong gradient-border p-8 md:p-12 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-1 text-neon-cyan">
+                      {Array.from({ length: t.rating }).map((_, k) => (
+                        <Star key={k} className="size-4 fill-current" />
+                      ))}
+                    </div>
+                    <p className="mt-6 text-xl md:text-2xl leading-relaxed text-foreground/90">
+                      "{t.quote}"
+                    </p>
                   </div>
-                  <p className="mt-6 text-xl md:text-2xl leading-relaxed text-foreground/90">
-                    "{t.quote}"
-                  </p>
+                  
                   <div className="mt-8 flex items-center gap-4">
                     <img src={t.image} alt={t.name} className="size-12 rounded-full object-cover ring-2 ring-white/20" />
                     <div>
@@ -61,18 +71,18 @@ export function Testimonials() {
           <div className="mt-8 flex items-center justify-center gap-4">
             <button onClick={() => setI((p) => (p - 1 + testimonials.length) % testimonials.length)}
                     aria-label="Previous"
-                    className="inline-flex size-10 items-center justify-center rounded-full glass hover:bg-white/10">
+                    className="inline-flex size-10 items-center justify-center rounded-full glass hover:bg-white/10 transition-colors cursor-pointer">
               <ChevronLeft className="size-4" />
             </button>
             <div className="flex gap-1.5">
               {testimonials.map((_, k) => (
                 <button key={k} onClick={() => setI(k)} aria-label={`Slide ${k + 1}`}
-                        className={`h-1.5 rounded-full transition-all ${k === i ? "w-8 bg-neon-cyan" : "w-1.5 bg-white/20"}`} />
+                        className={`h-1.5 rounded-full transition-all cursor-pointer ${k === i ? "w-8 bg-neon-cyan" : "w-1.5 bg-white/20"}`} />
               ))}
             </div>
             <button onClick={() => setI((p) => (p + 1) % testimonials.length)}
                     aria-label="Next"
-                    className="inline-flex size-10 items-center justify-center rounded-full glass hover:bg-white/10">
+                    className="inline-flex size-10 items-center justify-center rounded-full glass hover:bg-white/10 transition-colors cursor-pointer">
               <ChevronRight className="size-4" />
             </button>
           </div>

@@ -2,13 +2,19 @@ import { Reveal } from "../ui/Reveal";
 import { SectionHeading } from "../ui/SectionHeading";
 import { AnimatedCounter } from "../ui/AnimatedCounter";
 import { useStats } from "@/data";
+import { ParticleBackground } from "@/components/ui/ParticleBackground";
 
 export function About() {
   const { data: stats = [] } = useStats();
 
   return (
-    <section id="about" className="relative py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-5">
+    <section id="about" className="relative py-24 md:py-32 overflow-hidden">
+      {/* Interactive particle canvas backdrop */}
+      <div aria-hidden className="absolute inset-0 -z-10 opacity-40">
+        <ParticleBackground />
+      </div>
+
+      <div className="mx-auto max-w-7xl px-5 relative z-10">
         <SectionHeading
           eyebrow="About Klyde"
           title="Small team. Strong opinions. Real shipping."

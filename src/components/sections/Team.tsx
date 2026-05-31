@@ -3,13 +3,19 @@ import { Reveal } from "../ui/Reveal";
 import { SectionHeading } from "../ui/SectionHeading";
 import { useTeam } from "@/data";
 import { motion } from "framer-motion";
+import { ParticleBackground } from "@/components/ui/ParticleBackground";
 
 export function Team() {
   const { data: team = [] } = useTeam();
 
   return (
     <section id="team" className="relative py-24 md:py-32 w-full overflow-hidden">
-      <div className="mx-auto max-w-7xl px-5">
+      {/* Interactive particle canvas backdrop */}
+      <div aria-hidden className="absolute inset-0 -z-10 opacity-30 pointer-events-none">
+        <ParticleBackground />
+      </div>
+
+      <div className="mx-auto max-w-7xl px-5 relative z-10">
         <SectionHeading
           eyebrow="The Team"
           title="The people you'll actually work with."

@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { Reveal } from "../ui/Reveal";
+import { ParticleBackground } from "@/components/ui/ParticleBackground";
 
 export function FeaturedProject() {
   const ref = useRef<HTMLDivElement>(null);
@@ -10,7 +11,12 @@ export function FeaturedProject() {
 
   return (
     <section ref={ref} className="relative py-24 md:py-32 overflow-hidden">
-      <div className="mx-auto max-w-7xl px-5">
+      {/* Interactive particle canvas backdrop */}
+      <div aria-hidden className="absolute inset-0 -z-10 opacity-40">
+        <ParticleBackground />
+      </div>
+
+      <div className="mx-auto max-w-7xl px-5 relative z-10">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <Reveal>
             <div>

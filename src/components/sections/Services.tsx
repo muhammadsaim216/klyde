@@ -3,13 +3,19 @@ import { Reveal } from "../ui/Reveal";
 import { SectionHeading } from "../ui/SectionHeading";
 import { useServices, iconMap, type Service } from "@/data";
 import { Sparkles } from "lucide-react";
+import { ParticleBackground } from "@/components/ui/ParticleBackground";
 
 export function Services() {
   const { data: services = [], isLoading } = useServices();
 
   return (
-    <section id="services" className="relative py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-5">
+    <section id="services" className="relative py-24 md:py-32 overflow-hidden">
+      {/* Interactive particle canvas backdrop */}
+      <div aria-hidden className="absolute inset-0 -z-10 opacity-40">
+        <ParticleBackground />
+      </div>
+
+      <div className="mx-auto max-w-7xl px-5 relative z-10">
         <SectionHeading
           eyebrow="Services"
           title="What we actually do."
