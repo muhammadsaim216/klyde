@@ -1,0 +1,10 @@
+# Klyde
+
+> Klyde is a small product studio of engineers and designers who build software across web, mobile, AI and commerce.
+
+## Pages
+
+- [Home](/): Studio overview, featured work, services and team.
+- [Projects](/projects): Selected portfolio of recent web, mobile, AI and commerce builds.
+- [Blog](/blog): Field notes on AI, product engineering and modern software craft.
+- [Contact](/contact): Get in touch about a new project or collaboration.
