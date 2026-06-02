@@ -356,24 +356,15 @@ function RowEditor({
   }
 
   return (
-    <div 
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div 
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-2xl rounded-3xl glass-strong p-6 sm:p-8 flex flex-col max-h-[90vh]"
-      >
-        <button onClick={onClose} className="absolute top-4 right-4 rounded-full glass p-2 hover:bg-white/10 transition-colors">
-          <X className="size-4" />
-        </button>
-        
-        <h3 className="text-xl font-display font-semibold mb-5 flex-shrink-0">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm overflow-y-auto"
+         onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()}
+           className="relative w-full max-w-2xl my-8 rounded-3xl glass-strong p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
+        <button onClick={onClose} className="absolute top-4 right-4 rounded-full glass p-2"><X className="size-4" /></button>
+        <h3 className="text-xl font-display font-semibold mb-5">
           {creating ? "New entry" : "Edit entry"}
         </h3>
-        
-        {/* FIXED: Restored dedicated internal scrolling boundary here to guarantee all fields display smoothly */}
-        <div className="space-y-4 overflow-y-auto flex-1 pr-2 scrollbar-thin max-h-[calc(90vh-10rem)]">
+        <div className="space-y-4">
           {def.fields.map((f) => {
             const raw = form[f.key];
             const value =
@@ -381,7 +372,7 @@ function RowEditor({
               : f.type === "json" && typeof raw !== "string" ? JSON.stringify(raw ?? [], null, 2)
               : raw ?? "";
             return (
-              <div key={f.key} className="pb-1">
+              <div key={f.key}>
                 <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-1.5">
                   {f.label}{f.required && <span className="text-red-400 ml-1">*</span>}
                 </label>
@@ -390,23 +381,22 @@ function RowEditor({
                     rows={f.type === "json" ? 5 : 3}
                     value={value}
                     onChange={(e) => setField(f.key, e.target.value)}
-                    className="w-full rounded-xl glass px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-primary/50 bg-black/20"
+                    className="w-full rounded-xl glass px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-primary/50"
                   />
                 ) : (
                   <input
                     type={f.type === "number" ? "number" : f.type === "date" ? "date" : "text"}
                     value={value}
                     onChange={(e) => setField(f.key, e.target.value)}
-                    className="w-full rounded-xl glass px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/50 bg-black/20"
+                    className="w-full rounded-xl glass px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/50"
                   />
                 )}
               </div>
             );
           })}
         </div>
-        
-        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/5 flex-shrink-0">
-          <button onClick={onClose} className="rounded-full glass px-5 py-2.5 text-sm hover:bg-white/5 transition-colors">Cancel</button>
+        <div className="flex justify-end gap-3 mt-6">
+          <button onClick={onClose} className="rounded-full glass px-5 py-2.5 text-sm">Cancel</button>
           <GradientButton onClick={onSave} disabled={saving}>
             <Save className="size-4 mr-1 inline" />
             {saving ? "Saving…" : "Save"}

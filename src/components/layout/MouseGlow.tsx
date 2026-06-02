@@ -1,135 +1,110 @@
 import { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useSpring } from "framer-motion";
 
-const OUTER = 600;
-const INNER = 200;
-const DOT   = 8;
+type Ripple = { id: number; x: number; y: number };
 
 export function MouseGlow() {
-  const rawX = useMotionValue(-999);
-  const rawY = useMotionValue(-999);
-
-  // Springs with different stiffness so layers drift at different speeds
-  const outerX = useSpring(useTransform(rawX, v => v - OUTER / 2), { stiffness: 80,  damping: 22, mass: 0.6 });
-  const outerY = useSpring(useTransform(rawY, v => v - OUTER / 2), { stiffness: 80,  damping: 22, mass: 0.6 });
-  const innerX = useSpring(useTransform(rawX, v => v - INNER / 2), { stiffness: 160, damping: 18, mass: 0.3 });
-  const innerY = useSpring(useTransform(rawY, v => v - INNER / 2), { stiffness: 160, damping: 18, mass: 0.3 });
-  const dotX   = useSpring(useTransform(rawX, v => v - DOT / 2),   { stiffness: 400, damping: 28, mass: 0.1 });
-  const dotY   = useSpring(useTransform(rawY, v => v - DOT / 2),   { stiffness: 400, damping: 28, mass: 0.1 });
-
+  const x = useMotionValue(-200);
+  const y = useMotionValue(-200);
+  const sx = useSpring(x, { stiffness: 220, damping: 22, mass: 0.3 });
+  const sy = useSpring(y, { stiffness: 220, damping: 22, mass: 0.3 });
   const [enabled, setEnabled] = useState(true);
-  const [clicked, setClicked] = useState(false);
-  const [isLight, setIsLight] = useState(false);
-
-  useEffect(() => {
-    // Read initial theme
-    const checkTheme = () =>
-      setIsLight(document.documentElement.classList.contains("light"));
-
-    checkTheme();
-
-    // Watch for theme class changes on <html>
-    const observer = new MutationObserver(checkTheme);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-
-    return () => observer.disconnect();
-  }, []);
+  const [light, setLight] = useState(false);
+  const [ripples, setRipples] = useState<Ripple[]>([]);
 
   useEffect(() => {
     const mq = window.matchMedia("(pointer: coarse), (prefers-reduced-motion: reduce)");
     setEnabled(!mq.matches);
-    if (mq.matches) return;
 
-    const onMove = (e: MouseEvent) => { rawX.set(e.clientX); rawY.set(e.clientY); };
-    const onDown = () => { setClicked(true); setTimeout(() => setClicked(false), 350); };
+    const onMove = (e: MouseEvent) => { x.set(e.clientX); y.set(e.clientY); };
+    const onClick = (e: MouseEvent) => {
+      const id = Date.now() + Math.random();
+      setRipples((r) => [...r, { id, x: e.clientX, y: e.clientY }]);
+      setTimeout(() => setRipples((r) => r.filter((p) => p.id !== id)), 900);
+    };
 
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mousedown", onDown);
+    if (!mq.matches) {
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mousedown", onClick);
+    }
+
+    // Track light/dark theme via the .light class on <html>
+    const sync = () => setLight(document.documentElement.classList.contains("light"));
+    sync();
+    const mo = new MutationObserver(sync);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
     return () => {
       window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mousedown", onClick);
+      mo.disconnect();
     };
-  }, [rawX, rawY]);
+  }, [x, y]);
 
   if (!enabled) return null;
 
-  // Dark mode  — purple/violet on mix-blend-screen (adds light to dark bg)
-  // Light mode — warm amber/orange on mix-blend-multiply (subtracts from light bg)
-  const blendMode  = isLight ? "multiply"  : "screen";
-  const outerBg    = isLight
-    ? "radial-gradient(circle, oklch(0.75 0.18 55 / 0.22) 0%, oklch(0.70 0.20 40 / 0.08) 55%, transparent 70%)"
-    : "radial-gradient(circle, oklch(0.62 0.25 300 / 0.28) 0%, oklch(0.55 0.30 260 / 0.10) 55%, transparent 70%)";
-  const innerBg    = isLight
-    ? "radial-gradient(circle, oklch(0.72 0.22 50 / 0.45) 0%, oklch(0.68 0.24 35 / 0.15) 50%, transparent 70%)"
-    : "radial-gradient(circle, oklch(0.78 0.28 295 / 0.55) 0%, oklch(0.65 0.30 270 / 0.20) 50%, transparent 70%)";
-  const dotBg      = isLight ? "oklch(0.55 0.22 45 / 0.85)"  : "oklch(0.92 0.15 290 / 0.9)";
-  const dotShadow  = isLight
-    ? "0 0 8px 2px oklch(0.65 0.22 50 / 0.6)"
-    : "0 0 8px 2px oklch(0.80 0.28 295 / 0.7)";
-  const ringColor  = isLight
-    ? "oklch(0.65 0.22 50 / 0.45)"
-    : "oklch(0.78 0.28 295 / 0.5)";
+  const glowColor = light
+    ? "oklch(0.70 0.22 265 / 0.35)"
+    : "oklch(0.70 0.27 300 / 0.45)";
+  const ringColor = light
+    ? "oklch(0.55 0.22 265 / 0.55)"
+    : "oklch(0.75 0.25 300 / 0.7)";
+  const blendClass = light ? "mix-blend-multiply" : "mix-blend-screen";
 
   return (
     <>
-      {/* Layer 1 — large soft ambient bloom (slowest) */}
+      {/* Cursor-following soft glow */}
       <motion.div
         aria-hidden
-        className="pointer-events-none fixed z-[1]"
-        style={{ x: outerX, y: outerY, width: OUTER, height: OUTER, mixBlendMode: blendMode }}
+        className={`pointer-events-none fixed left-0 top-0 z-[1] size-0 ${blendClass}`}
+        style={{ x: sx, y: sy }}
       >
         <div
-          className="w-full h-full rounded-full blur-[80px]"
-          style={{ background: outerBg }}
+          className="absolute -translate-x-1/2 -translate-y-1/2 size-[420px] rounded-full opacity-60 blur-3xl"
+          style={{ background: `radial-gradient(circle, ${glowColor}, transparent 60%)` }}
+        />
+        {/* Small core dot */}
+        <div
+          className="absolute -translate-x-1/2 -translate-y-1/2 size-3 rounded-full opacity-70 blur-[2px]"
+          style={{ background: ringColor }}
         />
       </motion.div>
 
-      {/* Layer 2 — mid sharp halo (medium speed) */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none fixed z-[2]"
-        style={{ x: innerX, y: innerY, width: INNER, height: INNER, mixBlendMode: blendMode }}
-      >
-        <motion.div
-          className="w-full h-full rounded-full blur-[24px]"
-          animate={{ scale: clicked ? 1.5 : 1, opacity: clicked ? 0.9 : 0.6 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          style={{ background: innerBg }}
-        />
-      </motion.div>
-
-      {/* Layer 3 — crisp cursor dot (fastest, snaps) */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none fixed z-[3]"
-        style={{ x: dotX, y: dotY, width: DOT, height: DOT, mixBlendMode: blendMode }}
-      >
-        <motion.div
-          className="w-full h-full rounded-full"
-          animate={{ scale: clicked ? 3 : 1, opacity: clicked ? 0.5 : 1 }}
-          transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          style={{ background: dotBg, boxShadow: dotShadow }}
-        />
-      </motion.div>
-
-      {/* Click burst ring */}
-      {clicked && (
-        <motion.div
-          aria-hidden
-          className="pointer-events-none fixed z-[2] rounded-full border"
-          style={{
-            x: innerX,
-            y: innerY,
-            width: INNER,
-            height: INNER,
-            mixBlendMode: blendMode,
-            borderColor: ringColor,
-          }}
-          initial={{ scale: 0.3, opacity: 0.8 }}
-          animate={{ scale: 1.4, opacity: 0 }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
-        />
-      )}
+      {/* Click ripples */}
+      <div className={`pointer-events-none fixed inset-0 z-[1] ${blendClass}`} aria-hidden>
+        <AnimatePresence>
+          {ripples.map((r) => (
+            <motion.span
+              key={r.id}
+              className="absolute rounded-full"
+              style={{
+                left: r.x,
+                top: r.y,
+                border: `2px solid ${ringColor}`,
+                boxShadow: `0 0 30px ${ringColor}`,
+              }}
+              initial={{ width: 0, height: 0, x: 0, y: 0, opacity: 0.9 }}
+              animate={{ width: 320, height: 320, x: -160, y: -160, opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            />
+          ))}
+          {ripples.map((r) => (
+            <motion.span
+              key={`burst-${r.id}`}
+              className="absolute rounded-full blur-2xl"
+              style={{
+                left: r.x,
+                top: r.y,
+                background: `radial-gradient(circle, ${ringColor}, transparent 70%)`,
+              }}
+              initial={{ width: 40, height: 40, x: -20, y: -20, opacity: 0.8 }}
+              animate={{ width: 220, height: 220, x: -110, y: -110, opacity: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+            />
+          ))}
+        </AnimatePresence>
+      </div>
     </>
   );
 }

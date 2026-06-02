@@ -5,7 +5,6 @@ import { SectionHeading } from "../ui/SectionHeading";
 import { Reveal } from "../ui/Reveal";
 import { useProjects, projectCategories, type Project, type ProjectCategory } from "@/data";
 import { ProjectModal } from "./ProjectModal";
-import { ParticleBackground } from "@/components/ui/ParticleBackground";
 
 export function Projects({ compact = false }: { compact?: boolean }) {
   const [active, setActive] = useState<ProjectCategory>("All");
@@ -20,13 +19,8 @@ export function Projects({ compact = false }: { compact?: boolean }) {
   const list = compact ? filtered.slice(0, 6) : filtered;
 
   return (
-    <section id="projects" className="relative py-24 md:py-32 overflow-hidden">
-      {/* Interactive particle canvas backdrop */}
-      <div aria-hidden className="absolute inset-0 -z-10 opacity-40">
-        <ParticleBackground />
-      </div>
-
-      <div className="mx-auto max-w-7xl px-5 relative z-10">
+    <section id="projects" className="relative py-24 md:py-32">
+      <div className="mx-auto max-w-7xl px-5">
         <SectionHeading
           eyebrow="Selected Work"
           title="A few things we're proud of."
@@ -39,7 +33,7 @@ export function Projects({ compact = false }: { compact?: boolean }) {
               <button
                 key={c}
                 onClick={() => setActive(c)}
-                className={`rounded-full px-4 py-2 text-xs font-medium transition cursor-pointer ${
+                className={`rounded-full px-4 py-2 text-xs font-medium transition ${
                   active === c
                     ? "text-white shadow-[0_8px_30px_-8px_oklch(0.65_0.22_265/0.6)]"
                     : "glass text-muted-foreground hover:text-foreground"
@@ -59,11 +53,11 @@ export function Projects({ compact = false }: { compact?: boolean }) {
               ))
             : list.map((p, i) => (
                 <Reveal key={p.id} delay={(i % 3) * 0.08}>
-                  <motion.div
+                  <motion.button
                     onClick={() => setOpen(p)}
                     whileHover={{ y: -6 }}
                     transition={{ type: "spring", stiffness: 300, damping: 24 }}
-                    className="group block w-full overflow-hidden rounded-2xl glass gradient-border text-left transition hover:shadow-[0_30px_80px_-30px_oklch(0.70_0.27_300/0.5)] cursor-pointer"
+                    className="group block w-full overflow-hidden rounded-2xl glass gradient-border text-left transition hover:shadow-[0_30px_80px_-30px_oklch(0.70_0.27_300/0.5)]"
                   >
                     <div className="relative h-56 overflow-hidden">
                       <img src={p.image} alt={p.title} loading="lazy"
@@ -84,7 +78,7 @@ export function Projects({ compact = false }: { compact?: boolean }) {
                         <span className="inline-flex items-center gap-1"><Github className="size-3.5" /> Code</span>
                       </div>
                     </div>
-                  </motion.div>
+                  </motion.button>
                 </Reveal>
               ))}
         </div>

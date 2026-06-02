@@ -3,19 +3,13 @@ import { ArrowUpRight, Clock } from "lucide-react";
 import { Reveal } from "../ui/Reveal";
 import { SectionHeading } from "../ui/SectionHeading";
 import { useBlogPosts } from "@/data";
-import { ParticleBackground } from "@/components/ui/ParticleBackground";
 
 export function BlogPreview() {
   const { data: blogPosts = [] } = useBlogPosts();
   const featured = blogPosts.slice(0, 3);
   return (
-    <section id="blog" className="relative py-24 md:py-32 overflow-hidden">
-      {/* Interactive particle canvas backdrop */}
-      <div aria-hidden className="absolute inset-0 -z-10 opacity-40">
-        <ParticleBackground />
-      </div>
-
-      <div className="mx-auto max-w-7xl px-5 relative z-10">
+    <section id="blog" className="relative py-24 md:py-32">
+      <div className="mx-auto max-w-7xl px-5">
         <SectionHeading
           eyebrow="From the Blog"
           title="What we've been writing."
